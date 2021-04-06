@@ -84,6 +84,9 @@ jobs:
         #[ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_OP_SH
         cd openwrt
+        ls -AL
+        echo "echo feeds.conf.default"
+        cat feeds.conf.default
         #$GITHUB_WORKSPACE/$DIY_OP_SH
 
     - name: 下载diy-lede.sh跟feeds.conf.default自定义软件
