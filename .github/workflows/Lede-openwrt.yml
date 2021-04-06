@@ -76,8 +76,11 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone --depth 1 $REPO_URL openwrt    #-b $REPO_BRANCH
+        # git clone $REPO_URL openwrt    #-b $REPO_BRANCH
+        git clone https://git.openwrt.org/15.05/openwrt.git
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        pwd
+        ls -A
 
     - name: 加载diy-lede.sh跟feeds.conf.default设置
       run: |
