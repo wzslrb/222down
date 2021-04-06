@@ -33,16 +33,16 @@ on:
 
 #点☆Star触发开始编译
   watch:
-#    types: started
+    types: started
 
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL: http://git.archive.openwrt.org/15.05/openwrt.git
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: diy.config
   DIY_OP_SH: diy-lede.sh
-  SSH_ACTIONS: true
+  SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
@@ -76,15 +76,15 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone --depth 1 $REPO_URL openwrt    #-b $REPO_BRANCH
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: 加载diy-lede.sh跟feeds.conf.default设置
       run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        #[ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_OP_SH
         cd openwrt
-        $GITHUB_WORKSPACE/$DIY_OP_SH
+        #$GITHUB_WORKSPACE/$DIY_OP_SH
 
     - name: 下载diy-lede.sh跟feeds.conf.default自定义软件
       run: cd openwrt && ./scripts/feeds update -a
@@ -109,6 +109,18 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+        cd ..
+        echo "打包zip"
+        zip -q -r 15.zip openwrt
+        ls -l
+        curl -fsSL git.io/file-transfer | sh >/dev/null 2>&1
+        #echo "上传奶牛"
+        #./transfer cow --block 2621440 -s -p 64 --no-progress 15.zip 2>&1 | tee cowtransfer.log
+        #echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        echo "上传蓝奏云"
+        ./transfer lzs --cookie='ylogin=1927051; phpdisk_info=WWwFPgZmUmkPPQJnAWpSAVs%2FUlkKYlIyBTYIawc0BTYDMFJgDG9QbQc3BVxcZFY%2FVGcANg9lUWUAOlQwDj8KbFlrBWMGY1I8D28CZwFvUj1bPlJmCmZSYwUwCDsHMAVhAzRSYwxtUDgHPAU0XA9WPVQzADIPZVEzADJUMw44CjlZbAU1;' 15.zip 2>&1 | tee lzs.log
+        echo "::warning file=lzs.com::$(cat lzs.log | grep https)"
+        exit o
 
     - name: 开始编译固件
       id: compile
