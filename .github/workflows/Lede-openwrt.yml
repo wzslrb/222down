@@ -92,10 +92,10 @@ jobs:
         cat feeds.conf.default
         #$GITHUB_WORKSPACE/$DIY_OP_SH
 
-    - name: 下载diy-lede.sh跟feeds.conf.default自定义软件
+    - name: feeds update -a
       run: cd openwrt && ./scripts/feeds update -a
 
-    - name: 安装自定义软件
+    - name: feeds install -a
       run: cd openwrt && ./scripts/feeds install -a
 
     - name: 加载diy.config设置
