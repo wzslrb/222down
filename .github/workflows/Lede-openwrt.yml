@@ -114,21 +114,34 @@ jobs:
         echo make defconfig
         make defconfig
         echo make download -j8
-        make download -j8
+        make -k download -j8 V=s
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-        cd ..
+        
+    - name: 打包源码
+      if: (!cancelled())
+      run: |
+        df -hT
         echo "打包zip"
         zip -q -r 15.zip openwrt
-        ls -l
         curl -fsSL git.io/file-transfer | sh >/dev/null 2>&1
-        #echo "上传奶牛"
-        #./transfer cow --block 2621440 -s -p 64 --no-progress 15.zip 2>&1 | tee cowtransfer.log
-        #echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-        echo "上传蓝奏云"
-        ./transfer lzs --cookie='ylogin=1927051; phpdisk_info=WWwFPgZmUmkPPQJnAWpSAVs%2FUlkKYlIyBTYIawc0BTYDMFJgDG9QbQc3BVxcZFY%2FVGcANg9lUWUAOlQwDj8KbFlrBWMGY1I8D28CZwFvUj1bPlJmCmZSYwUwCDsHMAVhAzRSYwxtUDgHPAU0XA9WPVQzADIPZVEzADJUMw44CjlZbAU1;' 15.zip 2>&1 | tee lzs.log
-        echo "::warning file=lzs.com::$(cat lzs.log | grep https)"
-
+         ls -l
+         
+    - name: 上传奶牛源码
+      if: (!cancelled())
+      run: |
+        echo "上传奶牛"
+        ./transfer cow --block 2621440 -s -p 64 --no-progress 15.zip > cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        cat cowtransfer.log | grep https
+         
+    - name: 上传蓝奏云
+      if: (!cancelled())
+      run: |
+         echo "上传蓝奏云"
+         ./transfer lzs --cookie='ylogin=1927051; phpdisk_info=WWwFPgZmUmkPPQJnAWpSAVs%2FUlkKYlIyBTYIawc0BTYDMFJgDG9QbQc3BVxcZFY%2FVGcANg9lUWUAOlQwDj8KbFlrBWMGY1I8D28CZwFvUj1bPlJmCmZSYwUwCDsHMAVhAzRSYwxtUDgHPAU0XA9WPVQzADIPZVEzADJUMw44CjlZbAU1;' transfer > lzs.log
+         echo "::warning file=lzs.com::$(cat lzs.log | grep https)"
+         
     - name: 开始编译固件
       id: compile
       run: |
@@ -144,16 +157,6 @@ jobs:
       if: (!cancelled())
       run: |
         df -hT
-        echo "打包zip"
-        zip -q -r 15.zip openwrt
-        ls -l
-        curl -fsSL git.io/file-transfer | sh >/dev/null 2>&1
-        #echo "上传奶牛"
-        #./transfer cow --block 2621440 -s -p 64 --no-progress 15.zip 2>&1 | tee cowtransfer.log
-        #echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-        echo "上传蓝奏云"
-        ./transfer lzs --cookie='ylogin=1927051; phpdisk_info=WWwFPgZmUmkPPQJnAWpSAVs%2FUlkKYlIyBTYIawc0BTYDMFJgDG9QbQc3BVxcZFY%2FVGcANg9lUWUAOlQwDj8KbFlrBWMGY1I8D28CZwFvUj1bPlJmCmZSYwUwCDsHMAVhAzRSYwxtUDgHPAU0XA9WPVQzADIPZVEzADJUMw44CjlZbAU1;' 15.zip 2>&1 | tee lzs.log
-        echo "::warning file=lzs.com::$(cat lzs.log | grep https)"
 
     - name: 上传bin文件夹(固件+ipk)在github空间
       uses: actions/upload-artifact@main
