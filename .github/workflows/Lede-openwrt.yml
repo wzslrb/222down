@@ -126,14 +126,22 @@ jobs:
         zip -q -r 15.zip openwrt
         curl -fsSL git.io/file-transfer | sh >/dev/null 2>&1
          ls -l
-         
+        
+    - name: 上传vim源码
+      if: (!cancelled())
+      run: |
+        echo "上传vim"
+        ./transfer vim --no-progress 15.zip > vim.log
+        echo "::warning file=cowtransfer.com::$(cat vim.log | grep https)"
+        cat vim.log
+        
     - name: 上传奶牛源码
       if: (!cancelled())
       run: |
         echo "上传奶牛"
         ./transfer cow --block 2621440 -s -p 64 --no-progress 15.zip > cowtransfer.log
         echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-        cat cowtransfer.log | grep https
+        cat cowtransfer.log
          
     - name: 上传蓝奏云
       if: (!cancelled())
